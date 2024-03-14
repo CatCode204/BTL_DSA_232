@@ -139,6 +139,10 @@ template<typename T> void MyList<T>::remove(int index) {
         delete hold;
     }
     this->_size--;
+    if (this->_size == 0) {
+        delete this->_head;
+        this->_tail = this->_head = nullptr;
+    }
 }
 template<typename T> T& MyList<T>::get(int index) const {
     if (index < 0 || index >= this->_size) throw std::out_of_range("get(): Out of range");
@@ -214,7 +218,10 @@ Dataset::Dataset(const Dataset& other) {
     delete tmp;
 }
 Dataset& Dataset::operator = (const Dataset &other) {
-    for (int i=0;i < this->_numRows;++i) delete this->_data->get(i);
+    for (int i=0;i < this->_numRows;++i) {
+        delete this->_data->get(0);
+        this->_data->remove(0);
+    }
     delete this->_data;
     delete this->_title;
     this->_numRows = other._numRows;
@@ -262,6 +269,7 @@ bool Dataset::loadFromCSV(const char* fileName) {
         delete this->_data->get(0);
         this->_data->remove(0);
     }
+    delete this->_data;
     delete this->_title;
     this->_numRows = newNumRows;
     this->_numCols = newNumCols;
@@ -280,7 +288,7 @@ void Dataset::printHead(int nRows,int nCols) const {
         tmpTitle->remove(0);
     }
     delete tmpTitle;
-    std::cout << std::endl;
+    std::cout << endl;
     MyList<List<int>*>* tmpData = new MyList<List<int>*>(*(MyList<List<int>*>*)this->_data);
     for (int i=0;i < nRows;++i) {
         MyList<int>* tmpRow = new MyList<int>(*(MyList<int>*)tmpData->get(0));
